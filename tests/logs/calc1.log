@@ -1,0 +1,72 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> calc
+SharkXOS scientific calculator - type 'help' for commands, 'exit' to leave
+calc [rad]> 2+3*4
+= 14
+calc [rad]> sin(pi/2)
+= 1
+calc [rad]> 5!
+= 120
+calc [rad]> sqrt(2)
+= 1.414213562
+calc [rad]> 2^10
+= 1024
+calc [rad]> deg
+angle mode: degrees
+calc [deg]> sin(90)
+= 1
+calc [deg]> tan(45)
+= 1
+calc [deg]> bin 255
+0b11111111 = 255 decimal
+calc [deg]> hex 255
+0xff = 255 decimal
+calc [deg]> ncr(5,2)
+= 10
+calc [deg]> npr(5,2)
+= 20
+calc [deg]> m+ 42
+memory = 42
+calc [deg]> mr
+memory = 42
+calc [deg]> 1/0
+error: division by zero
+calc [deg]> sqrt(-1)
+error: sqrt domain error (negative argument)
+calc [deg]> hist
+  sin(pi/2) = 1
+  5! = 120
+  sqrt(2) = 1.414213562
+  2^10 = 1024
+  sin(90) = 1
+  tan(45) = 1
+  ncr(5,2) = 10
+  npr(5,2) = 20
+calc [deg]> exit
+calculator closed
+sharkx> [ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+[ tick ] heartbeat thread alive, 30 beats
+qemu-system-i386: terminating on signal 15 from pid 3925 (timeout)

@@ -1,0 +1,75 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> monitor
+ SharkXOS system monitor                                         
+SYSTEM
+  SharkXOS 1.0.0   x86 32-bit (IA-32)
+  uptime 4.200 s   kernel ready   paging on (64 MiB identity)
+SCHEDULER
+  preemptive round robin, quantum 5 ticks (50 ms)
+  ticks 420   context switches 90   preemptions 84   ready 1
+  running: 2 (shell)   threads: 4   heartbeat: 3   memwatch: 1
+THREADS
+  id  name              state       cpu ticks  switches
+  1   idle              READY       210        42
+  2   shell             RUNNING     210        42  <- running
+  3   heartbeat         WAITING     0          4
+  4   memwatch          WAITING     0          2
+MEMORY
+  heap 8192 KiB: used 24 KiB, free 8167 KiB, peak 24 KiB
+  allocations 3, frees 0, oom 0, double-free 0, invalid-free 0
+  blocks 4 (1 free), largest free 8363904 bytes
+STORAGE / SECURITY
+  ramdisk 0/256 KiB, 0 files, 0 reads, 0 writes
+  principal SYSTEM, access denials 0
+
+  refreshing every second - press any key to return to the shell
+system monitor closed
+sharkx> version
+SharkXOS version 1.0.0 (x86 32-bit (IA-32))
+kernel build Nov 12 2026 16:08:44, gcc 15.2.0
+sharkx> files
+SharkXOS file manager - 'help' for commands, 'exit' to leave
+(no files)
+files> ls
+(no files)
+files> touch a.txt
+created 'a.txt'
+files> write a.txt alpha
+written
+files> write a.txt beta
+written
+files> cat a.txt
+alpha
+beta
+files> rm a.txt
+deleted
+files> ls
+(no files)
+files> exit
+file manager closed
+sharkx> [ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+[ tick ] heartbeat thread alive, 30 beats
+qemu-system-i386: terminating on signal 15 from pid 3983 (timeout)

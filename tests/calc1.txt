@@ -1,0 +1,19 @@
+calc
+2+3*4
+sin(pi/2)
+5!
+sqrt(2)
+2^10
+deg
+sin(90)
+tan(45)
+bin 255
+hex 255
+ncr(5,2)
+npr(5,2)
+m+ 42
+mr
+1/0
+sqrt(-1)
+hist
+exit

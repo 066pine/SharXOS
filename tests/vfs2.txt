@@ -1,0 +1,4 @@
+vfstest
+diskinfo
+ls
+help

@@ -1,0 +1,141 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> ls
+no files. use 'touch <name>' to create one.
+sharkx> touch notes.txt
+created 'notes.txt' (owner SYSTEM, user rwd, restricted r--)
+sharkx> write notes.txt hello sharkx vfs
+appended 17 bytes to 'notes.txt'
+sharkx> cat notes.txt
+hello sharkx vfs
+sharkx> ls
+  name                     size  owner      user restr modified
+  notes.txt                  17  SYSTEM     rwd  r--  4.200 s
+sharkx> diskinfo
+ramdisk: 256 KiB capacity, 0 KiB used, 255 KiB free
+  files 1/32, created 1, deleted 0
+  reads 1, writes 1, permission denials 0, enospc 0
+  [........................................] 0%
+sharkx> permissions notes.txt
+file 'notes.txt'
+  owner      : SYSTEM
+  USER       : rwd
+  RESTRICTED : r--
+  size       : 17 bytes
+  reads/writes: 1 / 1
+sharkx> whoami
+principal: SYSTEM
+  access checks 2, denials 0
+  model: logical principals in ring 0 (see 'permissions')
+sharkx> su user
+now acting as USER
+sharkx> whoami
+principal: USER
+  access checks 2, denials 0
+  model: logical principals in ring 0 (see 'permissions')
+sharkx> su restricted
+now acting as RESTRICTED
+sharkx> cat notes.txt
+hello sharkx vfs
+sharkx> permissions notes.txt
+file 'notes.txt'
+  owner      : SYSTEM
+  USER       : rwd
+  RESTRICTED : r--
+  size       : 17 bytes
+  reads/writes: 2 / 1
+sharkx> su system
+now acting as SYSTEM
+sharkx> rm notes.txt
+removed 'notes.txt'
+sharkx> ls
+no files. use 'touch <name>' to create one.
+sharkx> access_test
+access control test on 'secure.txt' (owner SYSTEM, USER=rwx, RESTRICTED=r--)
+  [PASS] SYSTEM read        -> allowed
+  [PASS] SYSTEM write       -> allowed
+  [PASS] USER read          -> allowed
+  [PASS] USER write         -> allowed
+  [PASS] RESTRICTED read    -> allowed
+  [PASS] RESTRICTED write   -> permission denied
+  [PASS] RESTRICTED delete  -> permission denied
+access_test: PASS (all 7 checks behaved as expected)
+sharkx> race 100
+race condition test: 2 threads x 100 increments = 200 expected
+  without mutex   : counter = 100 (lost 100 updates)
+[ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+  with mutex      : counter = 200 (lost 0 updates)
+race test: PASS - unsynchronised update lost data, mutex fixed it
+sharkx> lockorder
+lock ordering demo: both threads acquire m1,m2 in address order
+[ tick ] heartbeat thread alive, 30 beats
+[ tick ] heartbeat thread alive, 40 beats
+  counter         : 200 (expected 200)
+  blocked forever : no
+lock ordering: PASS (no deadlock)
+sharkx> deadlock
+deadlock demo: A locks m1 then m2, B locks m2 then m1
+  circular wait   : thread A waits for m2, thread B waits for m1
+  detection       : wait-for cycle found, acquisition aborted
+  recovery        : A obtained m2 after B released it -> system continued
+  system state    : shell still responsive, both threads terminated
+  Coffman conditions observed: mutual exclusion, hold and wait,
+    no preemption, circular wait
+  prevention      : wait-for cycle detection (this test) and global
+    lock ordering, see 'lockorder'
+deadlock demo: PASS
+sharkx> usermode
+ring 3 demo: executing a user mode payload (CS=0x1b, CPL=3)
+[ring3] hello from CPL=3 - this text was printed through int 0x80
+[ring3] SYS_TICKS returned a live value from the kernel
+[ring3] user task exited with code 0
+usermode: PASS (privilege transition ring0 -> ring3 -> ring0 via int 0x80)
+sharkx> usermode fault
+ring 3 demo: executing a user mode payload (CS=0x1b, CPL=3)
+[ring3] hello from CPL=3 - this text was printed through int 0x80
+[ring3] about to execute cli - this must fault (privileged instruction)
+
+[ring3] FAULT in user mode: vector 13 (err=0x0, eip=0x10a6a0)
+[ring3] the privileged operation was blocked; kernel continues
+usermode: PASS (privilege transition ring0 -> ring3 -> ring0 via int 0x80)
+sharkx> threads
+threads (14 live, 14 created, running id=2):
+  id  name              state       cpu ticks  switches  wait
+  1   idle              READY       4785       957       -
+  2   shell             RUNNING     226        957       -  <- running
+  3   heartbeat         WAITING     0          48        -
+  4   memwatch          WAITING     0          17        -
+  5   race-A            TERMINATED  0          101       -
+  6   race-B            TERMINATED  0          101       -
+  7   race-A            TERMINATED  0          200       -
+  8   race-B            TERMINATED  0          201       -
+  9   order-A           TERMINATED  0          200       -
+  10  order-B           TERMINATED  0          201       -
+  11  dl-A              TERMINATED  0          4         -
+  12  dl-B              TERMINATED  0          3         -
+  13  userdemo          TERMINATED  0          1         -
+  14  userdemo          TERMINATED  0          1         -
+sharkx> [ tick ] heartbeat thread alive, 50 beats
+qemu-system-i386: terminating on signal 15 from pid 3809 (timeout)

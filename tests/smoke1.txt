@@ -1,0 +1,13 @@
+help
+version
+about
+uptime
+echo hello sharkx
+diag
+threads
+scheduler
+states
+semtest
+memory
+heapinfo
+memtest

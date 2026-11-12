@@ -1,0 +1,25 @@
+heapinfo
+editor
+story.txt
+Once upon a time there was a shark.
+It swam in the kernel.
+:l
+:e 2 It swam in ring 0.
+:i 1 The SharkXOS chronicle
+:l
+:w
+:q
+heapinfo
+cat story.txt
+editor story.txt
+:l
+:q!
+files
+cat story.txt
+info story.txt
+ren story.txt tale.txt
+ls
+cat tale.txt
+rm tale.txt
+ls
+exit

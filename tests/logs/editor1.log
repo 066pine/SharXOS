@@ -1,0 +1,129 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> heapinfo
+heap allocator state
+  region          : 8192 KiB, 4 blocks (1 free)
+  used / free     : 24672 / 8363936 bytes
+  peak used       : 24672 bytes
+  largest free    : 8363904 bytes
+  alloc / free    : 3 / 0
+  failures        : 0 OOM, 0 invalid free, 0 double free
+  coalesces       : 0
+block map (first 12):
+  [00] 0x12c220   8192 bytes used
+  [01] 0x12e240   8192 bytes used
+  [02] 0x130260   8192 bytes used
+  [03] 0x132280 8363904 bytes free
+sharkx> editor
+SharkXOS text editor - ':h' for help, ':q' to quit
+open file (leave empty for a new buffer): story.txt
+'story.txt' does not exist yet - it will be created on save
+edit:story.txt*> Once upon a time there was a shark.
+edit:story.txt*> It swam in the kernel.
+edit:story.txt*> :l
+  1 | Once upon a time there was a shark.
+  2 | It swam in the kernel.
+edit:story.txt*> :e 2 It swam in ring 0.
+line 2 updated
+edit:story.txt*> :i 1 The SharkXOS chronicle
+inserted before line 1
+edit:story.txt*> :l
+  1 | The SharkXOS chronicle
+  2 | Once upon a time there was a shark.
+  3 | It swam in ring 0.
+edit:story.txt*> :w
+saved 78 bytes to 'story.txt'
+edit:story.txt> :q
+editor closed
+sharkx> heapinfo
+heap allocator state
+  region          : 8192 KiB, 6 blocks (2 free)
+  used / free     : 24960 / 8363648 bytes
+  peak used       : 39360 bytes
+  largest free    : 8349216 bytes
+  alloc / free    : 6 / 2
+  failures        : 0 OOM, 0 invalid free, 0 double free
+  coalesces       : 1
+block map (first 12):
+  [00] 0x12c220   8192 bytes used
+  [01] 0x12e240   8192 bytes used
+  [02] 0x130260   8192 bytes used
+  [03] 0x132280  14368 bytes free
+  [04] 0x135ac0    256 bytes used
+  [05] 0x135be0 8349216 bytes free
+sharkx> cat story.txt
+The SharkXOS chronicle
+Once upon a time there was a shark.
+It swam in ring 0.
+sharkx> editor story.txt
+SharkXOS text editor - ':h' for help, ':q' to quit
+loaded 'story.txt' (3 lines, 78 bytes)
+  1 | The SharkXOS chronicle
+  2 | Once upon a time there was a shark.
+  3 | It swam in ring 0.
+edit:story.txt> :l
+  1 | The SharkXOS chronicle
+  2 | Once upon a time there was a shark.
+  3 | It swam in ring 0.
+edit:story.txt> :q!
+editor closed
+sharkx> files
+SharkXOS file manager - 'help' for commands, 'exit' to leave
+  name                     size  owner      modified
+  story.txt                  78  SYSTEM     4220 ms
+1 file(s)
+files> cat story.txt
+The SharkXOS chronicle
+Once upon a time there was a shark.
+It swam in ring 0.
+files> info story.txt
+name      : story.txt
+size      : 78 bytes (capacity 256)
+owner     : SYSTEM
+reads     : 3
+writes    : 1
+created   : tick 422
+modified  : tick 422
+permissions: user rwd / restricted r--
+files> ren story.txt tale.txt
+renamed
+files> ls
+  name                     size  owner      modified
+  tale.txt                   78  SYSTEM     4410 ms
+1 file(s)
+files> cat tale.txt
+The SharkXOS chronicle
+Once upon a time there was a shark.
+It swam in ring 0.
+files> rm tale.txt
+deleted
+files> ls
+(no files)
+files> exit
+file manager closed
+sharkx> [ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+[ tick ] heartbeat thread alive, 30 beats
+[ tick ] heartbeat thread alive, 40 beats
+qemu-system-i386: terminating on signal 15 from pid 3945 (timeout)

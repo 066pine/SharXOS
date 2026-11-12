@@ -1,0 +1,62 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> states
+thread state demo: id=5 name='state-demo'
+  NEW        : created with start_ready=false, not queued
+  READY      : thread::start() moved it onto the ready queue
+  RUNNING    : entry observed itself RUNNING on the CPU
+  WAITING    : blocked in mutex::lock() on a mutex the shell owns
+  TERMINATED : returned from its entry and called thread::exit()
+  observed   : NEW READY RUNNING WAITING TERMINATED
+thread states: PASS
+sharkx> threads
+threads (5 live, 5 created, running id=2):
+  id  name              state       cpu ticks  switches  wait
+  1   idle              READY       215        43        -
+  2   shell             RUNNING     206        43        -  <- running
+  3   heartbeat         WAITING     0          4         -
+  4   memwatch          WAITING     0          2         -
+  5   state-demo        TERMINATED  0          2         -
+sharkx> states
+thread state demo: id=6 name='state-demo'
+  NEW        : created with start_ready=false, not queued
+  READY      : thread::start() moved it onto the ready queue
+  RUNNING    : entry observed itself RUNNING on the CPU
+  WAITING    : blocked in mutex::lock() on a mutex the shell owns
+  TERMINATED : returned from its entry and called thread::exit()
+  observed   : NEW READY RUNNING WAITING TERMINATED
+thread states: PASS
+sharkx> threads
+threads (6 live, 6 created, running id=2):
+  id  name              state       cpu ticks  switches  wait
+  1   idle              READY       225        45        -
+  2   shell             RUNNING     208        45        -  <- running
+  3   heartbeat         WAITING     0          4         -
+  4   memwatch          WAITING     0          2         -
+  5   state-demo        TERMINATED  0          2         -
+  6   state-demo        TERMINATED  0          2         -
+sharkx> [ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+[ tick ] heartbeat thread alive, 30 beats
+qemu-system-i386: terminating on signal 15 from pid 3905 (timeout)

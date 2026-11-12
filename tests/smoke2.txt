@@ -1,0 +1,23 @@
+ls
+touch notes.txt
+write notes.txt hello sharkx vfs
+cat notes.txt
+ls
+diskinfo
+permissions notes.txt
+whoami
+su user
+whoami
+su restricted
+cat notes.txt
+permissions notes.txt
+su system
+rm notes.txt
+ls
+access_test
+race 100
+lockorder
+deadlock
+usermode
+usermode fault
+threads

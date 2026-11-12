@@ -1,0 +1,162 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> help
+SharkXOS shell commands (37 registered):
+  help         list all commands
+  clear        clear the screen
+  about        about SharkXOS
+  version      kernel version and build information
+  uptime       time since boot
+  logo         print the SharkXOS boot logo
+  echo         echo the arguments back
+  yield        voluntarily give up the CPU
+  diag         run console / timer diagnostics
+  shutdown     power off the machine (QEMU ACPI)
+  reboot       reset the machine
+  calc         scientific calculator
+  editor       text editor
+  files        file manager
+  monitor      system monitor
+  memory       memory and ramdisk summary
+  heapinfo     heap allocator statistics and block map
+  memtest      run the heap allocator self test
+  threads      list kernel threads and their states
+  scheduler    scheduler statistics and mutex owners
+  race         race condition vs mutex demonstration
+  deadlock     two-mutex deadlock demonstration
+  lockorder    deadlock prevention via lock ordering
+  states       demonstrate all five thread states
+  semtest      producer/consumer semaphore test
+  ls           list files in the ramdisk
+  touch        create an empty file
+  cat          print a file
+  write        append text to a file
+  rm           delete a file
+  diskinfo     ramdisk capacity and usage
+  vfstest      fill the ramdisk and verify ENOSPC handling
+  whoami       show the current security principal
+  su           switch principal (system|user|restricted)
+  permissions  show file permissions / access model
+  access_test  run the access control test
+  usermode     run a ring 3 payload (add 'fault' to try cli)
+sharkx> version
+SharkXOS version 1.0.0 (x86 32-bit (IA-32))
+kernel build Nov 12 2026 16:08:44, gcc 15.2.0
+sharkx> about
+SharkXOS 1.0.0
+  Architecture : x86 32-bit (IA-32)
+  Kernel       : monolithic, preemptive round robin
+  Boot         : GRUB 2 / Multiboot2
+  Compiler     : 15.2.0
+  Build        : Nov 12 2026 16:08:44
+sharkx> uptime
+uptime: 4340 ms (4.340 s), 434 ticks at 100 Hz
+sharkx> echo hello sharkx
+hello sharkx
+sharkx> diag
+SharkXOS diagnostics
+  VGA text buffer : 0xb8000 (80x25)
+  VGA read/write   : PASS
+  interrupts (IF)  : enabled
+  PIT ticking      : PASS (2 ticks in ~20 ms)
+  Paging           : enabled
+  CPU              : interrupts on
+  Threads          : 4
+  Heap             : 8192 KiB total
+sharkx> threads
+threads (4 live, 4 created, running id=2):
+  id  name              state       cpu ticks  switches  wait
+  1   idle              READY       220        44        -
+  2   shell             RUNNING     223        44        -  <- running
+  3   heartbeat         READY       0          4         -
+  4   memwatch          WAITING     0          2         -
+sharkx> scheduler
+scheduler: preemptive round robin
+  quantum         : 5 ticks (50 ms)
+  timer ticks     : 444
+  context switches: 94
+  preemptions     : 88
+  ready queue     : 2
+  running         : 2 (shell)
+  mutexes         : 0
+sharkx> states
+thread state demo: id=5 name='state-demo'
+  NEW        : created with start_ready=false, not queued
+  READY      : thread::start() moved it onto the ready queue
+  RUNNING    : entry observed itself RUNNING on the CPU
+  WAITING    : blocked in mutex::lock() on a mutex the shell owns
+  TERMINATED : returned from its entry and called thread::exit()
+  observed   : NEW READY RUNNING WAITING TERMINATED
+thread states: PASS
+sharkx> semtest
+semaphore test: initial count 0, two consumers waiting
+  both consumers WAITING : yes
+  after 1 signal         : 1 consumer(s) finished
+  total finished         : 2 of 2
+  final count            : 0
+semaphore test: PASS
+sharkx> memory
+physical memory (multiboot2):
+  available RAM   : 127 MiB
+  mmap entries    : 6
+kernel heap:
+  total           : 8192 KiB
+  used            : 32 KiB (0%)
+  free            : 8159 KiB
+  peak used       : 48 KiB
+  allocations     : 6 live/alloc, 2 frees, 0 failures
+ramdisk:
+  capacity        : 256 KiB
+  used            : 0 bytes in 0 files
+sharkx> heapinfo
+heap allocator state
+  region          : 8192 KiB, 4 blocks (1 free)
+  used / free     : 24672 / 8363936 bytes
+  peak used       : 49344 bytes
+  largest free    : 8363904 bytes
+  alloc / free    : 6 / 3
+  failures        : 0 OOM, 0 invalid free, 0 double free
+  coalesces       : 3
+block map (first 12):
+  [00] 0x12c220   8192 bytes used
+  [01] 0x12e240   8192 bytes used
+  [02] 0x130260   8192 bytes used
+  [03] 0x132280 8363904 bytes free
+sharkx> memtest
+running heap allocator self test...
+  [PASS] allocation + 16 byte alignment
+  [PASS] writable payload
+  [PASS] double free rejected
+  [PASS] invalid free rejected
+  [PASS] free list coalescing
+  [PASS] out of memory handled
+  [PASS] realloc preserves data
+  [PASS] stress allocation loop
+memtest: PASS (8/8 checks)
+  used before/after: 24672 / 24672 bytes
+sharkx> [ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+[ tick ] heartbeat thread alive, 30 beats
+[ tick ] heartbeat thread alive, 40 beats
+qemu-system-i386: terminating on signal 15 from pid 4029 (timeout)

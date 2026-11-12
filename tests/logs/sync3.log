@@ -1,0 +1,88 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> deadlock
+deadlock demo: A locks m1 then m2, B locks m2 then m1
+  circular wait   : thread A waits for m2, thread B waits for m1
+  detection       : wait-for cycle found, acquisition aborted
+  recovery        : A obtained m2 after B released it -> system continued
+  system state    : shell still responsive, both threads terminated
+  Coffman conditions observed: mutual exclusion, hold and wait,
+    no preemption, circular wait
+  prevention      : wait-for cycle detection (this test) and global
+    lock ordering, see 'lockorder'
+deadlock demo: PASS
+sharkx> usermode
+ring 3 demo: executing a user mode payload (CS=0x1b, CPL=3)
+[ring3] hello from CPL=3 - this text was printed through int 0x80
+[ring3] SYS_TICKS returned a live value from the kernel
+[ring3] user task exited with code 0
+usermode: PASS (privilege transition ring0 -> ring3 -> ring0 via int 0x80)
+sharkx> usermode fault
+ring 3 demo: executing a user mode payload (CS=0x1b, CPL=3)
+[ring3] hello from CPL=3 - this text was printed through int 0x80
+[ring3] about to execute cli - this must fault (privileged instruction)
+
+[ring3] FAULT in user mode: vector 13 (err=0x0, eip=0x10a6a0)
+[ring3] the privileged operation was blocked; kernel continues
+usermode: PASS (privilege transition ring0 -> ring3 -> ring0 via int 0x80)
+sharkx> threads
+threads (8 live, 8 created, running id=2):
+  id  name              state       cpu ticks  switches  wait
+  1   idle              READY       265        53        -
+  2   shell             RUNNING     208        53        -  <- running
+  3   heartbeat         WAITING     0          5         -
+  4   memwatch          WAITING     0          2         -
+  5   dl-A              TERMINATED  0          4         -
+  6   dl-B              TERMINATED  0          3         -
+  7   userdemo          TERMINATED  0          1         -
+  8   userdemo          TERMINATED  0          1         -
+sharkx> scheduler
+scheduler: preemptive round robin
+  quantum         : 5 ticks (50 ms)
+  timer ticks     : 474
+  context switches: 122
+  preemptions     : 94
+  ready queue     : 1
+  running         : 2 (shell)
+  mutexes         : 2
+    dl_mutex_A owner=none         locks=1 blocks=0 waiters=0
+    dl_mutex_B owner=none         locks=2 blocks=1 waiters=0
+sharkx> memory
+physical memory (multiboot2):
+  available RAM   : 127 MiB
+  mmap entries    : 6
+kernel heap:
+  total           : 8192 KiB
+  used            : 32 KiB (0%)
+  free            : 8159 KiB
+  peak used       : 48 KiB
+  allocations     : 9 live/alloc, 4 frees, 0 failures
+ramdisk:
+  capacity        : 256 KiB
+  used            : 0 bytes in 0 files
+sharkx> [ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+[ tick ] heartbeat thread alive, 30 beats
+[ tick ] heartbeat thread alive, 40 beats
+qemu-system-i386: terminating on signal 15 from pid 3882 (timeout)

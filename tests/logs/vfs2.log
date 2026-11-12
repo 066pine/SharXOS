@@ -1,0 +1,85 @@
+SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] bootloader: GRUB 2.12-1ubuntu7.3
+       RAM: 127 MB available
+[ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
+[ idt ] IDT loaded (256 gates), PIC remapped to 0x20-0x2f
+[ heap ] kernel heap ready: 8192 KiB
+[ mmu ] paging enabled: 64 MiB identity mapped, 4 KiB pages, user bit set
+[ vfs ] ramdisk mounted: 256 KiB, 32 slots
+[ sched ] round robin scheduler online, quantum 5 ticks (50 ms)
+
+   _____ _               _    __  __
+  / ____| |             | |  |  \/  |
+ | (___ | |__   __ _ _ __| | _| \  / |
+  \___ \| '_ \ / _` | '__| |/ / |\/| |
+  ____) | | | | (_| | |  |   <| |  | |
+ |_____/|_| |_|\__,_|_|  |_|\_\_|  |_|
+             SHARKXOS
+             Version 1.0.0
+             x86 32-BIT
+
+Kernel initialisation complete. 4 threads running.
+Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
+sharkx> vfstest
+vfs exhaustion test: 256 KiB ramdisk, 64 KiB per write
+  fill0.tmp: 64 KiB accepted (used 64 KiB)
+  fill1.tmp: 64 KiB accepted (used 128 KiB)
+  fill2.tmp: 64 KiB accepted (used 192 KiB)
+  fill3.tmp: 64 KiB accepted (used 256 KiB)
+  fill4.tmp: rejected with ENOSPC (no space left)
+  accepted writes : 4 x 64 KiB
+  ENOSPC denials  : 1
+  missing file    : reported as an error
+  cleanup         : 0 files, 0 bytes used
+vfs exhaustion: PASS
+sharkx> diskinfo
+ramdisk: 256 KiB capacity, 0 KiB used, 256 KiB free
+  files 0/32, created 5, deleted 5
+  reads 0, writes 4, permission denials 0, enospc 1
+  [........................................] 0%
+sharkx> ls
+no files. use 'touch <name>' to create one.
+sharkx> help
+SharkXOS shell commands (37 registered):
+  help         list all commands
+  clear        clear the screen
+  about        about SharkXOS
+  version      kernel version and build information
+  uptime       time since boot
+  logo         print the SharkXOS boot logo
+  echo         echo the arguments back
+  yield        voluntarily give up the CPU
+  diag         run console / timer diagnostics
+  shutdown     power off the machine (QEMU ACPI)
+  reboot       reset the machine
+  calc         scientific calculator
+  editor       text editor
+  files        file manager
+  monitor      system monitor
+  memory       memory and ramdisk summary
+  heapinfo     heap allocator statistics and block map
+  memtest      run the heap allocator self test
+  threads      list kernel threads and their states
+  scheduler    scheduler statistics and mutex owners
+  race         race condition vs mutex demonstration
+  deadlock     two-mutex deadlock demonstration
+  lockorder    deadlock prevention via lock ordering
+  states       demonstrate all five thread states
+  semtest      producer/consumer semaphore test
+  ls           list files in the ramdisk
+  touch        create an empty file
+  cat          print a file
+  write        append text to a file
+  rm           delete a file
+  diskinfo     ramdisk capacity and usage
+  vfstest      fill the ramdisk and verify ENOSPC handling
+  whoami       show the current security principal
+  su           switch principal (system|user|restricted)
+  permissions  show file permissions / access model
+  access_test  run the access control test
+  usermode     run a ring 3 payload (add 'fault' to try cli)
+sharkx> [ tick ] heartbeat thread alive, 10 beats
+[ tick ] heartbeat thread alive, 20 beats
+[ tick ] heartbeat thread alive, 30 beats
+qemu-system-i386: terminating on signal 15 from pid 3864 (timeout)

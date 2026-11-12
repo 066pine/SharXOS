@@ -1,0 +1,12 @@
+monitor
+
+version
+files
+ls
+touch a.txt
+write a.txt alpha
+write a.txt beta
+cat a.txt
+rm a.txt
+ls
+exit
