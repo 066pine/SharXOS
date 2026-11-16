@@ -1,5 +1,5 @@
 SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
-[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x992040)
 [ boot ] bootloader: GRUB 2.12-1ubuntu7.3
        RAM: 127 MB available
 [ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
@@ -22,6 +22,7 @@ SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
 Kernel initialisation complete. 4 threads running.
 Type 'help' for the command list. Built-in apps: calc, editor, files, monitor.
 sharkx> calc
+tip: run 'calc ui' for the full-screen arrow-key keypad
 SharkXOS scientific calculator - type 'help' for commands, 'exit' to leave
 calc [rad]> 2+3*4
 = 14
@@ -69,4 +70,4 @@ calculator closed
 sharkx> [ tick ] heartbeat thread alive, 10 beats
 [ tick ] heartbeat thread alive, 20 beats
 [ tick ] heartbeat thread alive, 30 beats
-qemu-system-i386: terminating on signal 15 from pid 3925 (timeout)
+qemu-system-i386: terminating on signal 15 from pid 4378 (timeout)

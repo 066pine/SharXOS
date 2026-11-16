@@ -50,7 +50,7 @@ instructions, including how to install the cross compiler, are in
 | Logical access control (SYSTEM / USER / RESTRICTED) with r/w/d bits | working (logical, not hardware enforced) |
 | Ring 3 demo with identity-mapped user pages, TSS stack switch, `int 0x80` syscalls, fault recovery | working (coarse isolation) |
 | CLI shell with 37 registered commands | working |
-| Scientific calculator | working |
+| Scientific calculator | working (REPL + arrow-key text UI) |
 | Text editor | working |
 | File manager | working |
 | System monitor | working |
@@ -82,6 +82,12 @@ placeholder commands that print canned text.
   minus, parentheses, `sin cos tan asin acos atan ln log sqrt exp abs floor ceil
   round fact`, constants `pi e`, `ncr(n,r)`, `npr(n,r)`, degree/radian mode,
   binary/decimal/hex conversion, memory (`m+ mr mc`), `ans`, and history.
+  `calc` starts the classic line-oriented REPL; `calc ui` opens a full-screen
+  keypad laid out like a scientific calculator. Arrow keys move the highlighted
+  key, Enter presses it, and you can also type an expression directly and press
+  Enter to evaluate. The UI is drawn in VGA text mode and mirrored to the serial
+  console with ANSI cursor addressing, so it works in both windowed and headless
+  `make run` sessions.
 * **editor** – VFS-backed line editor (`:l :i :e :d :a :w :wq :q :q! :s :h`),
   load/save through the kernel VFS, warns on unsaved changes, and keeps its line
   and file buffers on the kernel heap while it runs.

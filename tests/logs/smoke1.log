@@ -1,5 +1,5 @@
 SharkXOS 1.0.0 - x86 32-bit (IA-32) - monolithic kernel
-[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x987f40)
+[ boot ] multiboot2 handoff ok (magic=0x36d76289, info=0x992040)
 [ boot ] bootloader: GRUB 2.12-1ubuntu7.3
        RAM: 127 MB available
 [ gdt ] GDT/TSS loaded: kernel CS=0x8 DS=0x10, user CS=0x1b DS=0x23
@@ -34,7 +34,7 @@ SharkXOS shell commands (37 registered):
   diag         run console / timer diagnostics
   shutdown     power off the machine (QEMU ACPI)
   reboot       reset the machine
-  calc         scientific calculator
+  calc         scientific calculator (ui: calc ui)
   editor       text editor
   files        file manager
   monitor      system monitor
@@ -62,16 +62,16 @@ SharkXOS shell commands (37 registered):
   usermode     run a ring 3 payload (add 'fault' to try cli)
 sharkx> version
 SharkXOS version 1.0.0 (x86 32-bit (IA-32))
-kernel build Nov 12 2026 16:08:44, gcc 15.2.0
+kernel build Nov 12 2026 23:48:56, gcc 15.2.0
 sharkx> about
 SharkXOS 1.0.0
   Architecture : x86 32-bit (IA-32)
   Kernel       : monolithic, preemptive round robin
   Boot         : GRUB 2 / Multiboot2
   Compiler     : 15.2.0
-  Build        : Nov 12 2026 16:08:44
+  Build        : Nov 12 2026 23:48:56
 sharkx> uptime
-uptime: 4330 ms (4.330 s), 433 ticks at 100 Hz
+uptime: 4530 ms (4.530 s), 453 ticks at 100 Hz
 sharkx> echo hello sharkx
 hello sharkx
 sharkx> diag
@@ -79,7 +79,7 @@ SharkXOS diagnostics
   VGA text buffer : 0xb8000 (80x25)
   VGA read/write   : PASS
   interrupts (IF)  : enabled
-  PIT ticking      : PASS (2 ticks in ~20 ms)
+  PIT ticking      : PASS (8 ticks in ~20 ms)
   Paging           : enabled
   CPU              : interrupts on
   Threads          : 4
@@ -87,17 +87,17 @@ SharkXOS diagnostics
 sharkx> threads
 threads (4 live, 4 created, running id=2):
   id  name              state       cpu ticks  switches  wait
-  1   idle              READY       220        44        -
-  2   shell             RUNNING     223        44        -  <- running
-  3   heartbeat         READY       0          4         -
+  1   idle              READY       230        46        -
+  2   shell             RUNNING     233        46        -  <- running
+  3   heartbeat         WAITING     0          5         -
   4   memwatch          WAITING     0          2         -
 sharkx> scheduler
 scheduler: preemptive round robin
   quantum         : 5 ticks (50 ms)
-  timer ticks     : 444
-  context switches: 94
-  preemptions     : 88
-  ready queue     : 2
+  timer ticks     : 463
+  context switches: 99
+  preemptions     : 92
+  ready queue     : 1
   running         : 2 (shell)
   mutexes         : 0
 sharkx> states
@@ -122,10 +122,10 @@ physical memory (multiboot2):
   mmap entries    : 6
 kernel heap:
   total           : 8192 KiB
-  used            : 32 KiB (0%)
-  free            : 8159 KiB
+  used            : 24 KiB (0%)
+  free            : 8167 KiB
   peak used       : 48 KiB
-  allocations     : 6 live/alloc, 2 frees, 0 failures
+  allocations     : 6 live/alloc, 3 frees, 0 failures
 ramdisk:
   capacity        : 256 KiB
   used            : 0 bytes in 0 files
@@ -139,10 +139,10 @@ heap allocator state
   failures        : 0 OOM, 0 invalid free, 0 double free
   coalesces       : 3
 block map (first 12):
-  [00] 0x12c220   8192 bytes used
-  [01] 0x12e240   8192 bytes used
-  [02] 0x130260   8192 bytes used
-  [03] 0x132280 8363904 bytes free
+  [00] 0x12e220   8192 bytes used
+  [01] 0x130240   8192 bytes used
+  [02] 0x132260   8192 bytes used
+  [03] 0x134280 8363904 bytes free
 sharkx> memtest
 running heap allocator self test...
   [PASS] allocation + 16 byte alignment
@@ -158,4 +158,4 @@ memtest: PASS (8/8 checks)
 sharkx> [ tick ] heartbeat thread alive, 10 beats
 [ tick ] heartbeat thread alive, 20 beats
 [ tick ] heartbeat thread alive, 30 beats
-qemu-system-i386: terminating on signal 15 from pid 2712 (timeout)
+qemu-system-i386: terminating on signal 15 from pid 4512 (timeout)

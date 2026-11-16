@@ -164,7 +164,7 @@ const ShellCommandEntry CORE_COMMANDS[] = {
     {"diag",     "run console / timer diagnostics",      cmd_diag},
     {"shutdown", "power off the machine (QEMU ACPI)",    cmd_shutdown},
     {"reboot",   "reset the machine",                    cmd_reboot},
-    {"calc",     "scientific calculator",                apps::calculator_main},
+    {"calc",     "scientific calculator (ui: calc ui)",  apps::calculator_main},
     {"editor",   "text editor",                          apps::editor_main},
     {"files",    "file manager",                         apps::filemanager_main},
     {"monitor",  "system monitor",                       apps::monitor_main},

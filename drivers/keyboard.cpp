@@ -42,7 +42,24 @@ void irq_handler() {
     u8 sc = kstd::inb(0x60);
 
     if (sc == 0xE0) { g_extended = true; return; }
-    if (g_extended) { g_extended = false; return; }  // ignore extended keys for now
+    if (g_extended) {
+        g_extended = false;
+        if (sc & 0x80) return;               // extended key release
+        switch (sc) {
+        case 0x48: push((char)KEY_UP);     return;
+        case 0x50: push((char)KEY_DOWN);   return;
+        case 0x4B: push((char)KEY_LEFT);   return;
+        case 0x4D: push((char)KEY_RIGHT);  return;
+        case 0x47: push((char)KEY_HOME);   return;
+        case 0x4F: push((char)KEY_END);    return;
+        case 0x53: push((char)KEY_DELETE); return;
+        case 0x49: push((char)KEY_PGUP);   return;
+        case 0x51: push((char)KEY_PGDN);   return;
+        case 0x1C: push('\n');             return;  // keypad Enter
+        case 0x35: push('/');              return;  // keypad divide
+        default: return;
+        }
+    }
 
     bool released = (sc & 0x80) != 0;
     u8 code = (u8)(sc & 0x7F);
@@ -86,6 +103,16 @@ bool try_getchar(char* out) {
     *out = queue[q_tail];
     q_tail = (q_tail + 1) % INPUT_QUEUE_SIZE;
     return true;
+}
+
+void unget_char(char c) {
+    u32 flags = kstd::irq_save();
+    u32 prev = (q_tail + INPUT_QUEUE_SIZE - 1) % INPUT_QUEUE_SIZE;
+    if (prev != q_head) {          // there is room in front of the queue
+        q_tail = prev;
+        queue[q_tail] = c;
+    }
+    kstd::irq_restore(flags);
 }
 
 char getchar() {

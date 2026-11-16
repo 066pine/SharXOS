@@ -65,16 +65,14 @@ static void memwatch_entry(void*) {
 static void print_logo() {
     console::set_color(VGA_LIGHT_CYAN, VGA_BLACK);
     console::write(
-        "\n"
-        "   _____ _               _    __  __\n"
-        "  / ____| |             | |  |  \\/  |\n"
-        " | (___ | |__   __ _ _ __| | _| \\  / |\n"
-        "  \\___ \\| '_ \\ / _` | '__| |/ / |\\/| |\n"
-        "  ____) | | | | (_| | |  |   <| |  | |\n"
-        " |_____/|_| |_|\\__,_|_|  |_|\\_\\_|  |_|\n");
+        R"( ____  _              __  _____  ____
+/ ___|| |__   __ _ _ _\ \/ / _ \/ ___|
+\___ \| '_ \ / _` | '__\  / | | \___ \
+ ___) | | | | (_| | |  /  \ |_| |___) |
+|____/|_| |_|\__,_|_| /_/\_\___/|____/
+)");
     console::set_color(VGA_WHITE, VGA_BLACK);
     console::write(
-        "             SHARKXOS\n"
         "             Version " SHARKX_VERSION_STRING "\n"
         "             x86 32-BIT\n\n");
     console::reset_color();
