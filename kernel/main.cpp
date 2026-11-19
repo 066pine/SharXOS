@@ -42,7 +42,7 @@ void count_idle_halt() { g_idle_halts++; }
 // --------------------------------------------------------------- boot threads
 static void heartbeat_entry(void*) {
     for (;;) {
-        thread::sleep_ms(1000);
+        thread::sleep_ms(10000000);
         g_heartbeat++;
         if ((g_heartbeat % 10) == 0) {
             klog_serial("tick", "heartbeat thread alive, %u beats", g_heartbeat);
