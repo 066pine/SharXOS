@@ -64,20 +64,28 @@ static void memwatch_entry(void*) {
 // ---------------------------------------------------------------------- boot
 static void print_logo() {
     console::set_color(VGA_LIGHT_CYAN, VGA_BLACK);
-    console::write(
-        R"( ____  _              __  _____  ____
-/ ___|| |__   __ _ _ _\ \/ / _ \/ ___|
-\___ \| '_ \ / _` | '__\  / | | \___ \
- ___) | | | | (_| | |  /  \ |_| |___) |
-|____/|_| |_|\__,_|_| /_/\_\___/|____/
-)");
+    console::write(R"logo(
+                                            |\                          
+                  ,-,_                      | \                         
+         -____    \   \         |\          |  \                        
+                   \   \        | i_________|   \_______________________        
+                    \   \    --'--'                                    /       
+              -=#    \   '-'`                                __o_ __   /        
+                      \                            /                  /         
+            -=##       |   ,.--,,                ,/    ,. -(((  _____/          
+                       |  /      \ |             |    |        /^^^^`           
+              -=###    |/         \|/--.  ,,,____|    |       /                 
+                                       |/        |   /---.____\                 
+                __  _____  __  _____            |  /         --                
+                                                | /                            
+                          --_____  ____         |/
+)logo");
     console::set_color(VGA_WHITE, VGA_BLACK);
-    console::write(
-        "             Version " SHARKX_VERSION_STRING "\n"
-        "             x86 32-BIT\n\n");
+    console::write("               SharXOS\n"
+                   "             Version " SHARKX_VERSION_STRING "\n"
+                   "             x86 32-BIT\n\n");
     console::reset_color();
 }
-
 static void boot_banner() {
     console::set_color(VGA_DARK_GREY, VGA_BLACK);
     console::write("SharkXOS " SHARKX_VERSION_STRING " - " SHARKX_ARCH_STRING

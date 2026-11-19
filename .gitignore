@@ -1,0 +1,47 @@
+# SharkXOS - ignored files
+# Build output: kernel, ISO, objects, generated dependency files
+/build/
+*.o
+*.d
+*.elf
+*.iso
+*.bin
+*.img
+*.map
+*.lst
+*.dis
+*.sym
+
+# Logs from boot/QEMU/test runs
+*.log
+/tests/logs/
+/tools/logs/
+
+# QEMU, GDB and crash artifacts
+qemu.log
+serial.log
+*.core
+core
+gdb.txt
+.gdb_history
+
+# Toolchain downloads / local cross compiler
+/rel.json
+/i686-elf-tools-*.zip
+/i686-elf-tools-*.tar.*
+/cross/
+/toolchain/
+
+# Editors and OS cruft
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+.cache/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Tooling
+compile_commands.json
