@@ -38,6 +38,11 @@ int ksnprintf(char* buf, size_t size, const char* fmt, ...);
 void kprintf(const char* fmt, ...);
 void klog(const char* tag, const char* fmt, ...);
 
+// Serial-only logging: goes to COM1 (and QEMU debug port), never to VGA.
+// Use for periodic background chatter that would disturb the front console.
+void kserial_printf(const char* fmt, ...);
+void klog_serial(const char* tag, const char* fmt, ...);
+
 namespace console {
 void set_mirror_serial(bool enabled);
 bool mirror_serial();

@@ -45,7 +45,7 @@ static void heartbeat_entry(void*) {
         thread::sleep_ms(1000);
         g_heartbeat++;
         if ((g_heartbeat % 10) == 0) {
-            klog("tick", "heartbeat thread alive, %u beats", g_heartbeat);
+            klog_serial("tick", "heartbeat thread alive, %u beats", g_heartbeat);
         }
     }
 }
@@ -65,7 +65,7 @@ static void memwatch_entry(void*) {
 static void print_logo() {
     console::set_color(VGA_LIGHT_CYAN, VGA_BLACK);
     console::write(R"logo(
-                                            |\                          
+                                            |\                     
                   ,-,_                      | \                         
          -____    \   \         |\          |  \                        
                    \   \        | i_________|   \_______________________        
@@ -79,11 +79,19 @@ static void print_logo() {
                 __  _____  __  _____            |  /         --                
                                                 | /                            
                           --_____  ____         |/
-)logo");
+                                                                                
+                  _____  _                  __   __  ____   _____             
+                 / ____|| |                 \ \ / / / __ \ / ____|            
+                | (___  | |__    __ _  _ __  \ V / | |  | | (___              
+                 \___ \ | '_ \  / _` || '__|  > <  | |  | |\___ \             
+                 ____) || | | || (_| || |    / . \ | |__| |____) |            
+                |_____/ |_| |_| \__,_||_|   /_/ \_\ \____/|_____/
+)logo")
+;
     console::set_color(VGA_WHITE, VGA_BLACK);
-    console::write("               SharXOS\n"
-                   "             Version " SHARKX_VERSION_STRING "\n"
-                   "             x86 32-BIT\n\n");
+    console::write("SharX Operating System\n"
+                   "Version " SHARKX_VERSION_STRING "\n"
+                   "x86 32-BIT\n\n");
     console::reset_color();
 }
 static void boot_banner() {

@@ -18,6 +18,15 @@ void emit(char c) {
     kstd::outb(0xE9, (u8)c);   // QEMU debug console
 }
 
+// Write to COM1 / QEMU debug port only, bypassing the VGA text buffer.
+void serial_emit(const char* s) {
+    for (; s && *s; ++s) {
+        if (*s == '\n') serial::putc('\r');
+        serial::putc(*s);
+        kstd::outb(0xE9, (u8)*s);
+    }
+}
+
 } // namespace
 
 namespace console {
@@ -274,4 +283,26 @@ void klog(const char* tag, const char* fmt, ...) {
     kprintf("[ %s ] ", tag);
     console::set_color(VGA_LIGHT_GREY, VGA_BLACK);
     kprintf("%s\n", buf);
+}
+
+void kserial_printf(const char* fmt, ...) {
+    char buf[384];
+    va_list ap;
+    va_start(ap, fmt);
+    kvsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    serial_emit(buf);
+}
+
+void klog_serial(const char* tag, const char* fmt, ...) {
+    char buf[384];
+    va_list ap;
+    va_start(ap, fmt);
+    kvsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    serial_emit("[ ");
+    serial_emit(tag);
+    serial_emit(" ] ");
+    serial_emit(buf);
+    serial_emit("\n");
 }
