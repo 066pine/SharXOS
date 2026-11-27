@@ -19,7 +19,10 @@ struct Parser {
     const char* error;
     bool degrees;
     double ans;
+    int depth;          // recursion guard, so malformed input cannot overflow the stack
 };
+
+const int MAX_PARSE_DEPTH = 64;
 
 void fail(Parser& ps, const char* msg) {
     if (ps.ok) { ps.ok = false; ps.error = msg; }
@@ -49,7 +52,23 @@ void read_ident(Parser& ps, char* out, int max) {
 
 bool match_ident(const char* a, const char* b) { return strcmp(a, b) == 0; }
 
+// Names the parser understands.  Checking this up front means a stray word such
+// as "hiji" is reported as an unknown function instead of failing later with a
+// confusing "expected '(' after function name" message.
+bool is_known_function(const char* name) {
+    static const char* const kFunctions[] = {
+        "ncr", "npr", "c", "p",
+        "sin", "cos", "tan", "asin", "acos", "atan",
+        "sqrt", "ln", "log", "exp", "abs", "floor", "ceil", "round", "fact"
+    };
+    for (u32 i = 0; i < sizeof(kFunctions) / sizeof(kFunctions[0]); i++)
+        if (match_ident(name, kFunctions[i])) return true;
+    return false;
+}
+
 double call_function(Parser& ps, const char* name) {
+    if (!is_known_function(name)) { fail(ps, "unknown function"); return 0; }
+
     // two argument functions
     if (match_ident(name, "ncr") || match_ident(name, "npr") || match_ident(name, "c") ||
         match_ident(name, "p")) {
@@ -142,7 +161,10 @@ double parse_number(Parser& ps) {
         if (*ps.p == '-') { neg = true; ps.p++; } else if (*ps.p == '+') ps.p++;
         if (*ps.p >= '0' && *ps.p <= '9') {
             int e = 0;
-            while (*ps.p >= '0' && *ps.p <= '9') { e = e * 10 + (*ps.p - '0'); ps.p++; }
+            while (*ps.p >= '0' && *ps.p <= '9') {
+                if (e <= 308) e = e * 10 + (*ps.p - '0');   // avoid signed overflow
+                ps.p++;
+            }
             if (e > 308) { fail(ps, "exponent overflow"); return 0; }
             double mul = 1.0;
             for (int i = 0; i < e; i++) mul *= 10.0;
@@ -154,7 +176,24 @@ double parse_number(Parser& ps) {
     return v;
 }
 
+// Increments the nesting counter for the duration of one parse_primary() call.
+// Deeply nested input (for example many '(' or repeated function calls) would
+// otherwise recurse until the kernel thread stack is exhausted.
+struct DepthGuard {
+    Parser& ps;
+    bool entered;
+    explicit DepthGuard(Parser& p) : ps(p), entered(false) {
+        if (ps.depth >= MAX_PARSE_DEPTH) { fail(ps, "expression is nested too deeply"); return; }
+        ps.depth++;
+        entered = true;
+    }
+    ~DepthGuard() { if (entered) ps.depth--; }
+};
+
 double parse_primary(Parser& ps) {
+    DepthGuard guard(ps);
+    if (!ps.ok) return 0;
+
     skip_ws(ps);
 
     if (*ps.p == '(') {
@@ -298,6 +337,7 @@ bool eval_expression(const char* text, double* out, const char** error) {
     ps.error = nullptr;
     ps.degrees = g_degrees;
     ps.ans = g_ans;
+    ps.depth = 0;
 
     double v = parse_expr(ps);
     skip_ws(ps);
@@ -854,15 +894,20 @@ void ui_draw() {
 
     for (int i = 0; i < UI_COUNT; i++) ui_draw_button(i);
 
-    // status / memory footer
-    if (g_status[0]) {
-        ui_text(18, 22, g_status, g_status_ok ? VGA_LIGHT_GREEN : VGA_LIGHT_RED, VGA_BLACK);
-    } else {
-        char mbuf[40];
-        char line[64];
-        kmath::format_double(g_memory, mbuf, sizeof(mbuf));
-        ksnprintf(line, sizeof(line), "memory: %s", mbuf);
-        ui_text(18, 22, line, VGA_DARK_GREY, VGA_BLACK);
+    // status / memory footer, clipped to the inside of the case
+    {
+        char line[47];
+        if (g_status[0]) {
+            strncpy(line, g_status, sizeof(line) - 1);
+            line[sizeof(line) - 1] = 0;
+            ui_text(18, 22, line,
+                    g_status_ok ? VGA_LIGHT_GREEN : VGA_LIGHT_RED, VGA_BLACK);
+        } else {
+            char mbuf[40];
+            kmath::format_double(g_memory, mbuf, sizeof(mbuf));
+            ksnprintf(line, sizeof(line), "memory: %s", mbuf);
+            ui_text(18, 22, line, VGA_DARK_GREY, VGA_BLACK);
+        }
     }
     ui_text(2, 24,
             "TAB: switch page   Arrows: move   Enter: select   Esc: quit",
@@ -914,12 +959,15 @@ void ui_evaluate() {
     double v;
     const char* error = nullptr;
     if (!eval_expression(g_expr, &v, &error)) {
-        ksnprintf(g_result, sizeof(g_result), "error: %s",
-                  error ? error : "invalid expression");
-        g_has_result = true;
-        g_result_ok = false;
-        ui_status("edit the expression or press C", false);
-        ui_log(g_result);
+        // Invalid input is a normal condition, not a fatal one.  Keep the app
+        // running, leave the expression in the editor and report the reason in
+        // the status line instead of turning it into a fake result.
+        const char* msg = error ? error : "invalid expression";
+        g_has_result = false;
+        g_result[0] = 0;
+        g_fresh = false;
+        ui_status(msg, false);
+        ui_log(msg);
         return;
     }
 
