@@ -461,7 +461,7 @@ const int UI_GRID_Y    = 8;
 const int UI_STEP_X    = 7;
 const int UI_STEP_Y    = 3;
 const int UI_DISP_X    = 17;
-const int UI_DISP_Y    = 2;
+const int UI_DISP_Y    = 3;
 const int UI_DISP_W    = 46;
 const int UI_DISP_H    = 5;
 const int UI_TEXT_W    = UI_DISP_W - 2;
@@ -534,6 +534,22 @@ bool g_status_ok = true;
 bool g_fresh = false;      // last action was "="
 bool g_direct = false;     // the user typed since the last focus change
 int  g_focus = UI_START_AT;
+
+enum UiPage {
+    UI_PAGE_STANDARD,
+    UI_PAGE_CONVERTER
+};
+
+UiPage g_page = UI_PAGE_STANDARD;
+
+char g_base_input[40];
+int g_base_index = 2;
+
+const int BASE_VALUES[4] = {2, 8, 10, 16};
+
+const char* BASE_NAMES[4] = {
+    "BIN", "OCT", "DEC", "HEX"
+};
 
 char g_ui_log[12][96];
 u32 g_ui_log_count = 0;
@@ -648,7 +664,136 @@ void ui_draw_button(int index) {
     if (focused && sx + n < x + UI_BTN_W) ui_cell(sx + n, y, ']', fg, bg);
 }
 
+bool parse_base(const char* input, int base, u32* result) {
+    if (!input || !input[0]) return false;
+
+    u32 value = 0;
+
+    for (int i = 0; input[i]; i++) {
+        char c = input[i];
+        int digit;
+
+        if (c >= '0' && c <= '9')
+            digit = c - '0';
+        else if (c >= 'A' && c <= 'F')
+            digit = c - 'A' + 10;
+        else if (c >= 'a' && c <= 'f')
+            digit = c - 'a' + 10;
+        else
+            return false;
+
+        if (digit >= base) return false;
+
+        if (value > (0xFFFFFFFFu - (u32)digit) / (u32)base)
+            return false;
+
+        value = value * (u32)base + (u32)digit;
+    }
+
+    *result = value;
+    return true;
+}
+
+void format_base(u32 value, int base, char* output) {
+    kstd::itoa_u32(value, output, base);
+
+    if (base == 16) {
+        for (int i = 0; output[i]; i++) {
+            if (output[i] >= 'a' && output[i] <= 'f')
+                output[i] -= 32;
+        }
+    }
+}
+
+void ui_draw_converter() {
+    ui_fill(0, 0, 80, 25, ' ', VGA_LIGHT_GREY, VGA_BLACK);
+
+    // Title bar
+    ui_fill(0, 0, 80, 1, ' ', VGA_BLACK, VGA_CYAN);
+    ui_text(2, 0, "SharkXOS Scientific Calculator",
+            VGA_BLACK, VGA_CYAN);
+    ui_text(70, 0, "ESC exit", VGA_BLACK, VGA_CYAN);
+
+    // Outer case - same size as Standard Calculator
+    ui_box(15, 1, 50, 23, VGA_CYAN, VGA_BLACK);
+
+    // Page tabs
+    ui_text(24, 2, "Standard", VGA_LIGHT_GREY, VGA_BLACK);
+    ui_text(40, 2, "[ Base Converter ]",
+            VGA_YELLOW, VGA_BLACK);
+
+    // Section title
+    ui_text(19, 5, "NUMBER SYSTEM CONVERTER",
+            VGA_LIGHT_CYAN, VGA_BLACK);
+
+    // Input base selector
+    ui_text(19, 7, "INPUT BASE:", VGA_LIGHT_GREY, VGA_BLACK);
+
+    const int base_x = 26;
+
+    for (int i = 0; i < 4; i++) {
+        int x = base_x + i * 8;
+
+        if (i == g_base_index) {
+            ui_text(x, 8, "[", VGA_YELLOW, VGA_BLACK);
+            ui_text(x + 1, 8, BASE_NAMES[i],
+                    VGA_YELLOW, VGA_BLACK);
+            ui_text(x + 4, 8, "]", VGA_YELLOW, VGA_BLACK);
+        } else {
+            ui_text(x + 1, 8, BASE_NAMES[i],
+                    VGA_LIGHT_GREY, VGA_BLACK);
+        }
+    }
+
+    // Input number
+    ui_text(19, 11, "INPUT NUMBER:",
+            VGA_LIGHT_GREY, VGA_BLACK);
+
+    ui_box(19, 12, 42, 3, VGA_DARK_GREY, VGA_BLACK);
+
+    ui_text(21, 13,
+            g_base_input[0] ? g_base_input : "_",
+            VGA_WHITE, VGA_BLACK);
+
+    // Conversion results
+    u32 value = 0;
+
+    if (g_base_input[0] &&
+        parse_base(g_base_input, BASE_VALUES[g_base_index], &value)) {
+
+        ui_text(19, 17, "CONVERSION RESULTS:",
+                VGA_LIGHT_CYAN, VGA_BLACK);
+
+        for (int i = 0; i < 4; i++) {
+            char output[40];
+            format_base(value, BASE_VALUES[i], output);
+
+            char line[64];
+            ksnprintf(line, sizeof(line), "%s: %s",
+                      BASE_NAMES[i], output);
+
+            ui_text(21, 18 + i, line,
+                    VGA_LIGHT_GREEN, VGA_BLACK);
+        }
+
+    } else if (g_base_input[0]) {
+        ui_text(19, 17, "Invalid input for selected base.",
+                VGA_LIGHT_RED, VGA_BLACK);
+    }
+
+    // Footer
+    ui_text(2, 24,
+            "TAB: switch page   Arrows: change base   ~: clear",
+            VGA_DARK_GREY, VGA_BLACK);
+}
+
+
 void ui_draw() {
+    if (g_page == UI_PAGE_CONVERTER) {
+        ui_draw_converter();
+        return;
+    }
+
     ui_fill(0, 0, 80, 25, ' ', VGA_LIGHT_GREY, VGA_BLACK);
 
     // title bar
@@ -660,13 +805,16 @@ void ui_draw() {
     ui_box(15, 1, 50, 23, VGA_CYAN, VGA_BLACK);
     ui_box(UI_DISP_X, UI_DISP_Y, UI_DISP_W, UI_DISP_H, VGA_DARK_GREY, VGA_BLACK);
 
+    ui_text(22, 2, "[ Standard ]", VGA_YELLOW, VGA_BLACK);
+    ui_text(42, 2, "Base Converter", VGA_LIGHT_GREY, VGA_BLACK);
+
     // status indicators
-    ui_text(18, 3, g_degrees ? "DEG" : "RAD", VGA_YELLOW, VGA_BLACK);
+    ui_text(18, 4, g_degrees ? "DEG" : "RAD", VGA_YELLOW, VGA_BLACK);
     if (g_memory != 0.0) {
         char mbuf[40];
         kmath::format_double(g_memory, mbuf, sizeof(mbuf));
-        ui_text(23, 3, "M", VGA_LIGHT_MAGENTA, VGA_BLACK);
-        ui_text(25, 3, mbuf, VGA_LIGHT_MAGENTA, VGA_BLACK);
+        ui_text(23, 4, "M", VGA_LIGHT_MAGENTA, VGA_BLACK);
+        ui_text(25, 4, mbuf, VGA_LIGHT_MAGENTA, VGA_BLACK);
     }
     {
         char abuf[40];
@@ -676,7 +824,7 @@ void ui_draw() {
         int n = (int)strlen(ans);
         int sx = UI_DISP_X + UI_DISP_W - 1 - n;
         if (sx < UI_DISP_X + 1) sx = UI_DISP_X + 1;
-        ui_text(sx, 3, ans, VGA_DARK_GREY, VGA_BLACK);
+        ui_text(sx, 4, ans, VGA_DARK_GREY, VGA_BLACK);
     }
 
     // expression line (right aligned, with a caret while editing)
@@ -690,7 +838,7 @@ void ui_draw() {
         view[vn] = 0;
         int sx = UI_DISP_X + UI_DISP_W - 1 - vn;
         if (sx < UI_DISP_X + 1) sx = UI_DISP_X + 1;
-        ui_text(sx, 4, view, VGA_WHITE, VGA_BLACK);
+        ui_text(sx, 5, view, VGA_WHITE, VGA_BLACK);
     }
 
     // result line
@@ -700,7 +848,7 @@ void ui_draw() {
         int shown = len - start;
         int sx = UI_DISP_X + UI_DISP_W - 1 - shown;
         if (sx < UI_DISP_X + 1) sx = UI_DISP_X + 1;
-        ui_text(sx, 5, g_result + start,
+        ui_text(sx, 6, g_result + start,
                 g_result_ok ? VGA_LIGHT_GREEN : VGA_LIGHT_RED, VGA_BLACK);
     }
 
@@ -717,7 +865,7 @@ void ui_draw() {
         ui_text(18, 22, line, VGA_DARK_GREY, VGA_BLACK);
     }
     ui_text(2, 24,
-            "Arrows: move   Enter: press   type expression + Enter: evaluate   Esc: quit",
+            "TAB: switch page   Arrows: move   Enter: select   Esc: quit",
             VGA_DARK_GREY, VGA_BLACK);
 }
 
@@ -886,6 +1034,9 @@ int calculator_ui() {
     g_expr[0] = 0;
     g_result[0] = 0;
     g_status[0] = 0;
+    g_page = UI_PAGE_STANDARD;
+    g_base_index = 2;
+    g_base_input[0] = 0;
     g_has_result = false;
     g_result_ok = true;
     g_status_ok = true;
@@ -911,7 +1062,63 @@ int calculator_ui() {
         ui_mirror();
         int key = ui_read_key();
 
-        if (key == 27 || key == 3) break;      // Esc / Ctrl-C leave the UI
+        // TAB: switch between Standard and Base Converter
+        if (key == 9) {
+            g_page = (g_page == UI_PAGE_STANDARD)
+                ? UI_PAGE_CONVERTER
+                : UI_PAGE_STANDARD;
+            continue;
+        }
+
+        // ESC or CTRL+C: exit calculator
+        if (key == 27 || key == 3) {
+            break;
+        }
+
+        // Base Converter input handler
+        if (g_page == UI_PAGE_CONVERTER) {
+            // Pertahankan seluruh kode handler Base Converter milikmu di sini.
+        }
+
+        if (g_page == UI_PAGE_CONVERTER) {
+
+            if (key == keyboard::KEY_LEFT) {
+                g_base_index = (g_base_index + 3) % 4;
+            }
+            else if (key == keyboard::KEY_RIGHT) {
+                g_base_index = (g_base_index + 1) % 4;
+            }
+            else if (key == '~') {
+                g_base_input[0] = 0;
+            }
+            else if (key == '\b' || key == 127 ||
+                    key == keyboard::KEY_DELETE) {
+
+                int len = (int)strlen(g_base_input);
+
+                if (len > 0)
+                    g_base_input[len - 1] = 0;
+            }
+            else if (key >= 32 && key < 127) {
+
+                int len = (int)strlen(g_base_input);
+                char c = (char)key;
+
+                bool valid_char =
+                    (c >= '0' && c <= '9') ||
+                    (c >= 'A' && c <= 'F') ||
+                    (c >= 'a' && c <= 'f');
+
+                if (valid_char &&
+                    len < (int)sizeof(g_base_input) - 1) {
+
+                    g_base_input[len] = c;
+                    g_base_input[len + 1] = 0;
+                }
+            }
+
+            continue;
+        }
 
         if (key == keyboard::KEY_LEFT) {
             g_focus = (g_focus % UI_COLS == 0) ? g_focus + UI_COLS - 1 : g_focus - 1;
